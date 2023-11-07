@@ -9,7 +9,7 @@ export const POST = async (request: NextRequest) => {
   const session = await authRequest.validate();
   if (!session) {
     return new Response("Unauthorized", {
-      status: 401
+      status: 401,
     });
   }
   // make sure to invalidate the current session!
@@ -19,7 +19,7 @@ export const POST = async (request: NextRequest) => {
   return new Response(null, {
     status: 302,
     headers: {
-      Location: "/login" // redirect to login page
-    }
+      Location: "/auth/login", // redirect to login page
+    },
   });
 };

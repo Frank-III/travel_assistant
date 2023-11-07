@@ -1,6 +1,6 @@
 import { auth, githubAuth } from "@/server/lucia";
 import * as context from "next/headers";
-import { cookies } from 'next/headers'
+import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 
 export const GET = async (request: NextRequest) => {
@@ -10,8 +10,8 @@ export const GET = async (request: NextRequest) => {
     return new Response(null, {
       status: 302,
       headers: {
-        Location: "/"
-      }
+        Location: "/",
+      },
     });
   }
   const [url, state] = await githubAuth.getAuthorizationUrl();
@@ -20,12 +20,12 @@ export const GET = async (request: NextRequest) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: 60 * 60
+    maxAge: 60 * 60,
   });
   return new Response(null, {
     status: 302,
     headers: {
-      Location: url.toString()
-    }
+      Location: url.toString(),
+    },
   });
 };

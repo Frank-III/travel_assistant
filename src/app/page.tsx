@@ -1,14 +1,14 @@
 import Link from "next/link";
-
 import { CreatePost } from "@/app/_components/create-post";
 import { getPageSession } from "@/server/lucia";
 import { api } from "@/trpc/server";
 import { redirect } from "next/navigation";
-import { LogOut } from 'lucide-react'
+import { LogOut } from "lucide-react";
 
 export default async function Home() {
   const session = await getPageSession();
-  if (!session) redirect("/login");
+
+  if (!session) redirect("/auth/login");
 
   const hello = await api.post.hello.query({ text: "from tRPC" });
 
@@ -18,11 +18,17 @@ export default async function Home() {
         <div className="rounded-full border p-2">
           {session.user.githubUsername}
         </div>
-        {session &&
-          <form action="/logout" method="post" className="p-2 pb-0  border rounded-full">
-            <button type="submit"><LogOut size={18} /></button>
+        {session && (
+          <form
+            action="/auth/logout"
+            method="post"
+            className="rounded-full border  p-2 pb-0"
+          >
+            <button type="submit">
+              <LogOut size={18} />
+            </button>
           </form>
-        }
+        )}
       </div>
       <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
         <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
@@ -37,7 +43,7 @@ export default async function Home() {
 
         <CrudShowcase />
       </div>
-    </main >
+    </main>
   );
 }
 

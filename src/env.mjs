@@ -7,19 +7,21 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
+    OPENAI_API_KEY: z.string(),
+
     DATABASE_POOL_URL: z
       .string()
       .url()
       .refine(
         (str) => !str.includes("YOUR_NEON_POOL_URL_HERE"),
-        "You forgot to change the default URL"
+        "You forgot to change the default URL",
       ),
     DATABASE_URL: z
       .string()
       .url()
       .refine(
         (str) => !str.includes("YOUR_NEON_URL_HERE"),
-        "You forgot to change the default URL"
+        "You forgot to change the default URL",
       ),
     NODE_ENV: z
       .enum(["development", "test", "production"])
@@ -36,6 +38,7 @@ export const env = createEnv({
    */
   client: {
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
+    //
   },
 
   /**
@@ -43,11 +46,12 @@ export const env = createEnv({
    * middlewares) or client-side so we need to destruct manually.
    */
   runtimeEnv: {
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     DATABASE_POOL_URL: process.env.DATABASE_POOL_URL,
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
-    GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET
+    GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**
