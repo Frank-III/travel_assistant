@@ -38,6 +38,7 @@ export default function ChatBox() {
         type="text"
         className="w-full text-gray-700 outline-none"
         placeholder="Start Typing or share a file"
+        disabled={status === "loading"}
       />
     </div>
   );
