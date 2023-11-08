@@ -8,6 +8,7 @@ export const env = createEnv({
    */
   server: {
     OPENAI_API_KEY: z.string(),
+    ASSISTANT_ID: z.string().optional(),
 
     DATABASE_POOL_URL: z
       .string()
@@ -47,6 +48,7 @@ export const env = createEnv({
    */
   runtimeEnv: {
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+    ASSISTANT_ID: process.env.ASSISTANT_ID,
     DATABASE_POOL_URL: process.env.DATABASE_POOL_URL,
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
