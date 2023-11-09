@@ -31,7 +31,7 @@ export const githubAuth = github(auth, {
 
 export type Auth = typeof auth;
 
-export const getPageSession = cache<() => Promise<Session>>(() => {
+export const getPageSession = cache<() => Promise<Session>>(async () => {
   const authRequest = auth.handleRequest("GET", context);
   return authRequest.validate();
 });

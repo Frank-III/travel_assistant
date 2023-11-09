@@ -8,41 +8,57 @@ import {
 
 import { openai, assistant } from "@/server/openai_assistant";
 import { retrieveRunRes } from "@/lib/utils";
+import { TRPCError } from "@trpc/server";
+
+const USER_THREAD_MAP = new Map<string, string>(); 
 
 export const travelRouter = createTRPCRouter({
   // TODO: add user location here (or in the ctx)
   ask: protectedProcedure
     .input(z.object({ text: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      //get thread_id or create a new one
+      let thread_id = USER_THREAD_MAP.get(ctx.session?.user.userId);
+      if (!thread_id) {
+        const thread = await openai.beta.threads.create({});
+        thread_id = thread.id;
+        USER_THREAD_MAP.set(ctx.session?.user.userId, thread_id);
+      }
       const message = await openai.beta.threads.messages.create(
-        ctx.session?.userId,
+        //FIXME: have to create a thread first
+        thread_id,
         {
           role: "user",
           content: input.text,
         },
       );
-      let run = await openai.beta.threads.runs.create(message.id, {
+      let run = await openai.beta.threads.runs.create(thread_id, {
         assistant_id: assistant.id,
-        instructions:
-          "1. if the user ask about visit place, return the location of each place in the map, with anotations. 2. if the user ask about the weather, return the weather of the place. 3. if the user ask about the travel plan, return the travel plan. 4. if the user ask about the travel time, return the travel time. 5. if the user ask about the travel cost, return the travel cost. 6. if the user ask about the travel distance, return the travel distance. 7. if the user ask about the travel route, return the travel route. 8. if the user ask about travel or costs that include calculations use code interpreter to do the calculation",
+        // instructions:
+        //   "1. if the user ask about visit place, return the location of each place in the map, with anotations. 2. if the user ask about the weather, return the weather of the place. 3. if the user ask about the travel plan, return the travel plan. 4. if the user ask about the travel time, return the travel time. 5. if the user ask about the travel cost, return the travel cost. 6. if the user ask about the travel distance, return the travel distance. 7. if the user ask about the travel route, return the travel route. 8. if the user ask about travel or costs that include calculations use code interpreter to do the calculation",
       });
 
       // periodically retrieve the Run to check on its status to see if it has moved to completed.
       while (
-        (run = await openai.beta.threads.runs.retrieve(message.id, run.id))
+        (run = await openai.beta.threads.runs.retrieve(thread_id, run.id))
           .status !== "completed"
       ) {
         // check error
         if (run.status === "failed") {
-          throw "OpenAI Assistant Error";
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "OpenAI Assistant Error"
+          });
         }
         if (run.status === "requires_action") {
+          console.log("received action")
           return { type: "action", action: run };
         }
 
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 50000));
       }
-      const messages = await openai.beta.threads.messages.list(message.id);
+      const messages = await openai.beta.threads.messages.list(thread_id);
+      console.log("received messages", messages)
       return { type: "message", messages: messages };
       // return retrieveRunRes(ctx.session?.userId, run.id);
     }),
@@ -61,8 +77,15 @@ export const travelRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      const thread_id = USER_THREAD_MAP.get(ctx.session?.user.userId);
+      if (!thread_id) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "No thread found",
+        })
+      }
       const run = await openai.beta.threads.runs.submitToolOutputs(
-        ctx.session?.userId,
+        thread_id,
         input.run_id,
         {
           tool_outputs: input.run_res.map((res) => ({
@@ -71,6 +94,6 @@ export const travelRouter = createTRPCRouter({
           })),
         },
       );
-      return retrieveRunRes(ctx.session?.userId, run.id);
+      return await retrieveRunRes(thread_id, run.id);
     }),
 });

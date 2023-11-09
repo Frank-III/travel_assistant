@@ -6,6 +6,22 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function mark_locations({
+  locations,
+}: {
+  locations: Array<{
+    latitude: number;
+    longitude: number;
+    description: string;
+  }>;
+}): React.ReactNode {
+  return;
+}
+
+export const FunctionTools = new Map<string, Function>([
+  ["mark_locations", mark_locations],
+]);
+
 export async function retrieveRunRes(message_id: string, run_id: string) {
   let run;
   while (

@@ -1,11 +1,13 @@
 "use client";
 
+import { MarkerLocation } from "@/lib/types";
 import { useState } from "react";
 import {
   MapContainer,
   Marker,
   Popup,
   TileLayer,
+  useMap,
   useMapEvents,
 } from "react-leaflet";
 
@@ -18,44 +20,38 @@ import {
 // }
 //
 
-export function LocationMarker() {
-  const [pos, setPos] = useState<{ lat: number; lng: number }>({
-    lat: 51.505,
-    lng: -0.09,
-  });
+export function LocationMarker({marker}: {marker: MarkerLocation}) {
+  const map = useMap()
+  if (marker.center) {
+  map.flyTo({lat: marker.lat, lng: marker.lng}, 13);
+  }
 
-  const map = useMapEvents({
-    click() {
-      map.locate();
-    },
-    locationfound(e) {
-      setPos(e.latlng);
-      map.flyTo(e.latlng, 13);
-    },
-  });
-  return pos === null ? null : (
-    <Marker position={pos}>
-      <Popup>You are here</Popup>
-    </Marker>
+  return (<Marker position={{lat: marker.lat, lng: marker.lng}}>
+    <Popup>{marker.description}</Popup>
+  </Marker>
   );
 }
 
 export default function MapComponent({
-  children,
+  center,
+  markers,
 }: {
-  children?: React.ReactNode;
+  center?: { lat: number; lng: number } ;
+  markers?: Array<MarkerLocation>;
 }) {
   return (
     <MapContainer
-      center={[51.505, -0.09]}
-      zoom={1}
+      center={[center?.lat ?? 51.505, center?.lng ?? -0.09]}
+      zoom={center ? 13 : 1}
       className="h-[650px] w-[650px] rounded-xl border-2"
     >
       <TileLayer
         attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.osm.org/{z}/{x}/{y}.png"
       />
-      {children}
+      {markers?.map(( marker, i) => (
+        <LocationMarker key={i} marker={marker}/>
+      ))}
     </MapContainer>
   );
 }

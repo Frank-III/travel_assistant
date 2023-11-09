@@ -13,23 +13,7 @@ export default async function Home() {
   const hello = await api.post.hello.query({ text: "from tRPC" });
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-      <div className="absolute right-0 top-0 m-5 flex flex-row space-x-2">
-        <div className="rounded-full border p-2">
-          {session.user.githubUsername}
-        </div>
-        {session && (
-          <form
-            action="/auth/logout"
-            method="post"
-            className="rounded-full border  p-2 pb-0"
-          >
-            <button type="submit">
-              <LogOut size={18} />
-            </button>
-          </form>
-        )}
-      </div>
+    <main className="">
       <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
         <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
           Create <span className="text-[hsl(280,100%,70%)]">T3</span> App

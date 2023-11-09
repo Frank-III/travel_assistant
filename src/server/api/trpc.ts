@@ -9,7 +9,7 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import { type NextRequest } from "next/server";
 import superjson from "superjson";
-import { ZodError } from "zod";
+import { unknown, ZodError } from "zod";
 import { getPageSession } from "@/server/lucia";
 import { db } from "@/server/db";
 import { type Session } from "lucia";

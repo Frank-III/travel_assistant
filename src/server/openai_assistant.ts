@@ -18,22 +18,22 @@ export const assistant = env.ASSISTANT_ID
         {
           type: "function",
           function: {
-            name: "mark_locations",
-            description:
-              "given a list of locations, mark them on the map and return the map",
+            name: "mark_location",
             parameters: {
-              type: "array",
+              type: "object",
               properties: {
                 locations: {
                   type: "array",
                   items: {
                     type: "object",
                     properties: {
-                      latitude: {
+                      lat: {
                         type: "number",
+                        description: "latitude",
                       },
-                      longitude: {
+                      lng: {
                         type: "number",
+                        description: "longitude",
                       },
                       description: {
                         type: "string",
@@ -42,7 +42,10 @@ export const assistant = env.ASSISTANT_ID
                   },
                 },
               },
+              required: ["locations"],
             },
+            description:
+              "given a list of locations, mark them on the map and return the map",
           },
         },
       ],
