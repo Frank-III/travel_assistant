@@ -10,7 +10,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import { type NextRequest } from "next/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
-import { getPageSession } from '@/server/lucia'
+import { getPageSession } from "@/server/lucia";
 import { db } from "@/server/db";
 import { type Session } from "lucia";
 
@@ -41,7 +41,7 @@ export const createInnerTRPCContext = async (opts: CreateContextOptions) => {
   return {
     headers: opts.headers,
     db,
-    session
+    session,
   };
 };
 
@@ -103,7 +103,6 @@ export const createTRPCRouter = t.router;
  * are logged in.
  */
 export const publicProcedure = t.procedure;
-
 
 const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
   if (!ctx.session || !ctx.session.user) {
