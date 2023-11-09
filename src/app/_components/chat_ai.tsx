@@ -33,7 +33,12 @@ export default function ChatBox() {
   const [prompt, setPrompt] = useState<string>("");
   const { mutate, status } = api.wanderlust.ask.useMutation({
     onSuccess: (data) => {
-      setMessages([]);
+      if (data.type === "action") {
+        //draw on map
+      } else {
+        // add to messages
+        setMessages([]);
+      }
     },
   });
 
