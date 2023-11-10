@@ -20,15 +20,22 @@ export default function Combo() {
   };
   useEffect(() => {
     if (coords) {
-      console.log(coords)
-      addmarkers([{lat: coords.latitude, lng: coords.longitude, description: "You are here", center: true}])
+      console.log(coords);
+      addmarkers([
+        {
+          lat: coords.latitude,
+          lng: coords.longitude,
+          description: "You are here",
+          center: true,
+        },
+      ]);
     }
-  }, [coords])
+  }, [coords]);
 
   return (
     <div className="flex h-screen w-full flex-row items-center justify-center space-x-10 overflow-y-auto">
-      <ChatBox addMarker={addmarkers}/>
-      <MapComponent markers={markers}/>
+      <ChatBox addMarker={addmarkers} />
+      <MapComponent markers={markers} />
     </div>
   );
 }

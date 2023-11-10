@@ -2,12 +2,9 @@ import "@/styles/globals.css";
 
 import { Inter } from "next/font/google";
 import { headers } from "next/headers";
-import * as content from "next/headers"
-
 import { TRPCReactProvider } from "@/trpc/react";
 import Header from "@/app/_components/header";
-import { auth, getPageSession } from "@/server/lucia";
-import { get } from "http";
+import { getPageSession } from "@/server/lucia";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -42,15 +39,11 @@ export default function RootLayout({
   );
 }
 
-
-export function RootLayoutView({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function RootLayoutView({ children }: { children: React.ReactNode }) {
   return (
-  <main className="">
-  <Header />
-  {children} 
-  </main>)
+    <main className="">
+      <Header />
+      {children}
+    </main>
+  );
 }

@@ -4,6 +4,7 @@ import { getPageSession } from "@/server/lucia";
 import { api } from "@/trpc/server";
 import { redirect } from "next/navigation";
 import { LogOut } from "lucide-react";
+import { HeaderLinks } from "./_components/header_links";
 
 export default async function Home() {
   const session = await getPageSession();
@@ -13,7 +14,8 @@ export default async function Home() {
   const hello = await api.post.hello.query({ text: "from tRPC" });
 
   return (
-    <main className="">
+    <>
+      {/* <HeaderLinks /> */}
       <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
         <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
           Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
@@ -27,7 +29,7 @@ export default async function Home() {
 
         <CrudShowcase />
       </div>
-    </main>
+    </>
   );
 }
 
