@@ -36,7 +36,8 @@ export default function Combo() {
       <div className="inline-flex w-full justify-end">
         <ExportButton content={{ messages: messages, locations: markers }} />
       </div>
-      <div className="over-flow-hidden flex h-screen w-full flex-row items-center justify-center space-x-10">
+      {/* FIXME: mt-[-124px] not a good thing*/}
+      <div className="over-flow-hidden mt-[-124px] flex h-screen w-full flex-row items-center justify-center space-x-10">
         <ChatBox
           addMarker={addmarkers}
           addMessages={addMessages}
