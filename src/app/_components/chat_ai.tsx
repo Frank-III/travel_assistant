@@ -49,7 +49,7 @@ export default function ChatBox({
                 "text" in newMessage.content[0]
                   ? newMessage.content[0].text.value
                   : "",
-              sender: newMessage.role,
+              sender: "assistant",
               meta: newMessage?.metadata,
             })),
         );
