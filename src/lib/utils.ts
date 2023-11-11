@@ -1,6 +1,8 @@
 import { type ClassValue, clsx } from "clsx";
 import { openai } from "@/server/openai_assistant";
 import { twMerge } from "tailwind-merge";
+import { Message } from "@/lib/types";
+import { MarkerLocation } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -14,11 +16,11 @@ export function mark_locations({
     longitude: number;
     description: string;
   }>;
-}): React.ReactNode {
-  return;
+}): void {
+  console.log("111");
 }
 
-export const FunctionTools = new Map<string, Function>([
+export const FunctionTools = new Map<string, (...args: any[]) => void>([
   ["mark_locations", mark_locations],
 ]);
 
@@ -36,8 +38,18 @@ export async function retrieveRunRes(message_id: string, run_id: string) {
       return { type: "action", action: run };
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 5000));
   }
   const messages = await openai.beta.threads.messages.list(message_id);
   return { type: "message", messages: messages };
+}
+
+
+interface Content {
+  messages: Array<Message>;
+  locations: Array<MarkerLocation>;
+}
+
+export function exportToFile() {
+
 }

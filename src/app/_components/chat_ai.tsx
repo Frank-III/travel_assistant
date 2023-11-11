@@ -1,6 +1,6 @@
 "use client";
-
-import { useState, useEffect } from "react";
+import { Message } from "@/lib/types";
+import { useRef, useState, useEffect } from "react";
 import { match, P } from "ts-pattern";
 // import { FunctionTools, mark_locations } from "@/lib/utils";
 import { type RouterOutputs } from "@/server/api/root";
@@ -13,16 +13,15 @@ import type {
 import { ChevronRight, Code, FileBarChart2 } from "lucide-react";
 import { MarkerLocation } from "@/lib/types";
 
-interface Message {
-  message: string;
-  sender: "user" | "assistant";
-  meta: unknown;
-}
 
 function ChatElement({ message }: { message: Message }) {
   return (
-    <div className="inline-flex w-full items-start space-x-5 text-[30px] text-gray-500 hover:text-gray-700" >
-      { message.sender === "assistant" ? <Code style={{paddingTop: 10}} size={40}/> : <ChevronRight style={{paddingTop: 10}} size={40}/>}
+    <div className="inline-flex w-full items-start space-x-5 text-[30px] text-gray-500 hover:text-gray-700">
+      {message.sender === "assistant" ? (
+        <Code style={{ paddingTop: 10 }} size={40} />
+      ) : (
+        <ChevronRight style={{ paddingTop: 10 }} size={40} />
+      )}
       <span>{message.message}</span>
     </div>
   );
@@ -30,31 +29,32 @@ function ChatElement({ message }: { message: Message }) {
 
 export default function ChatBox({
   addMarker,
+  addMessages,
+  messages
 }: {
   addMarker: (marker: MarkerLocation[]) => void;
+  addMessages: (messages: Message[]) => void;
+  messages: Message[];
 }) {
-  const [messages, setMessages] = useState<Message[]>([]);
   const [prompt, setPrompt] = useState<string>("");
-
-  const addMessage = (message: Message) => {
-    setMessages([...messages, message]);
-  };
+  const inputRef = useRef<HTMLInputElement>(null);
   const { mutate: callbackOnAssistant } = api.wanderlust.callback.useMutation({
     onSuccess: (data) => {
       if (data.messages?.data) {
-        
-      setMessages(
-          data.messages.data.reverse().slice(messages.length).map((newMessage) => ({
-            message:
-              "text" in newMessage.content[0]
-                ? newMessage.content[0].text.value
-                : "",
-            sender: newMessage.role,
-            meta: newMessage?.metadata,
-          }),
-      ));
-        }
-      // onDataReturn(data);
+        addMessages(
+          data.messages.data
+            .reverse()
+            .slice(messages.length)
+            .map((newMessage) => ({
+              message:
+                "text" in newMessage.content[0]
+                  ? newMessage.content[0].text.value
+                  : "",
+              sender: newMessage.role,
+              meta: newMessage?.metadata,
+            })),
+        );
+      }
     },
   });
   const onDataReturn = (data: RouterOutputs["wanderlust"]["ask"]) => {
@@ -63,29 +63,24 @@ export default function ChatBox({
         data.action?.required_action?.submit_tool_outputs?.tool_calls.forEach(
           (tool_call) => {
             switch (tool_call.function.name) {
-              case "mark_location":
-                {
-                  //TODO: type this
-                  const params = JSON.parse(tool_call.function.arguments);
-                  console.log("add marker: ", params)
-                  if (params.locations.length == 1) {
-                    addMarker([{
-                      lat: params.locations[0].lat,
-                      lng: params.locations[0].lng,
-                      description: params.locations[0].description,
-                      center: true,
-                    }]);
-                  } else {
-                    addMarker(params.locations.map((location: MarkerLocation) => (
-                      {
-                        lat: location.lat,
-                        lng: location.lng,
-                        description: location.description,
-                        center: false,
-                      })));
-                  }
-                }
+              case "mark_location": {
+                //TODO: type this
+                const params = JSON.parse(tool_call.function.arguments);
+                console.log("add marker: ", params);
+                addMarker(
+                  params.locations.map(
+                    (location: MarkerLocation) =>
+                      location,
+                      // {
+                      //   lat: location.lat,
+                      //   lng: location.lng,
+                      //   description: location.description,
+                      //   property: location.property,
+                      // }
+                  ),
+                );
                 break;
+              }
             }
           },
         );
@@ -103,16 +98,19 @@ export default function ChatBox({
       }
       case "message": {
         if (data.messages?.data) {
-        setMessages(
-            data.messages.data.reverse().slice(messages.length).map((newMessage) => ({
-              message:
-                "text" in newMessage.content[0]
-                  ? newMessage.content[0].text.value
-                  : "",
-              sender: newMessage.role,
-              meta: newMessage?.metadata,
-            }),
-        ));
+          addMessages(
+            data.messages.data
+              .reverse()
+              .slice(messages.length)
+              .map((newMessage) => ({
+                message:
+                  "text" in newMessage.content[0]
+                    ? newMessage.content[0].text.value
+                    : "",
+                sender: newMessage.role,
+                meta: newMessage?.metadata,
+              })),
+          );
         }
       }
     }
@@ -130,16 +128,21 @@ export default function ChatBox({
     meta: null,
   };
 
+  // scroll to input 
+  // useEffect(() => {
+  //   inputRef.current?.scrollIntoView();
+  // }, [messages]); 
+
   // when hit enter send message
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.key === "Enter") {
-        askAssistant({ text: prompt });
-        addMessage({
+        // askAssistant({ text: prompt });
+        addMessages([{
           message: prompt,
           sender: "user",
           meta: null,
-        });
+        }]);
         setPrompt("");
       }
     };
@@ -152,22 +155,58 @@ export default function ChatBox({
   }, [prompt]);
 
   return (
-    <div className="border-1 flex h-[650px] w-[650px] flex-col items-center justify-center overflow-y-auto border-gray-300 text-[30px]">
+    // <div className="p-2 border-1 flex h-[650px] w-[650px] flex-col items-center justify-center overflow-y-auto border-gray-300 text-[30px] text-wrap">
+    // <div className="flex flex-col h-[650px] w-[650px] border-gray-300">
+    //   {/* {messages.length == 0 && <ChatElement message={fake_message} />}
+    //   {messages.map((message, index) => (
+    //     <ChatElement key={index} message={message} />
+    //   ))} */}
+    //   <div className="flex flex-col p-2 overflow-y-auto text-[30px]">
+    //     {messages.length === 0 && <ChatElement message={fake_message} />}
+    //     {messages.map((message, index) => (
+    //       <ChatElement key={index} message={message} />
+    //     ))}
+    //   </div>
+    //   <div className="flex p-2 space-x-5 border-t border-gray-300 text-[30px] text-gray-500 hover:text-gray-700">
+    //   {/* <div className="inline-flex w-full items-start space-x-5 text-[30px] text-gray-500 hover:text-gray-700"> */}
+    //     <ChevronRight className="pt-[10px]" size={40} />
+    //     <input
+    //       value={prompt}
+    //       onChange={(e) => setPrompt(e.target.value)}
+    //       type="text"
+    //       ref = {inputRef}
+    //       className="w-full text-gray-700 outline-none"
+    //       placeholder="Start Typing or share a file"
+    //       disabled={askStatus === "loading"}
+    //     />
+    //   </div>
+    // </div>
+    <div className={`flex h-[650px] w-[650px] flex-col ${messages.length === 0 ? 'justify-center' : 'justify-end'} border-gray-300`}>
+      {/* Conditionally render messages container if there are messages */}
+
       {messages.length == 0 && <ChatElement message={fake_message} />}
-      {messages.map((message, index) => (
-        <ChatElement key={index} message={message} />
-      ))}
-      <div className="inline-flex w-full items-start space-x-5 text-[30px] text-gray-500 hover:text-gray-700">
-      <ChevronRight className="pt-[10px]" size={40}/>
-      <input
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        type="text"
-        className="w-full text-gray-700 outline-none"
-        placeholder="Start Typing or share a file"
-        disabled={askStatus === "loading"}
-      />
+      {messages.length > 0 && (
+        <div className="overflow-y-auto text-[30px]">
+          {messages.map((message, index) => (
+            <ChatElement key={index} message={message} />
+          ))}
+        </div>
+      )}
+
+      {/* Input and button */}
+      <div className="p-2 flex items-center space-x-5 border-t border-gray-300 text-[30px] text-gray-500 hover:text-gray-700">
+        <ChevronRight size={40} />
+        <input
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          type="text"
+          ref={inputRef}
+          className="flex-1 text-gray-700 outline-none"
+          placeholder="Start Typing or share a file"
+          disabled={askStatus === "loading"}
+        />
       </div>
     </div>
+
   );
 }

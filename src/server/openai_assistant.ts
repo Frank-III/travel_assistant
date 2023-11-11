@@ -38,6 +38,11 @@ export const assistant = env.ASSISTANT_ID
                       description: {
                         type: "string",
                       },
+                      property: {
+                        enum: ["main", "entertainment", "landscape"],
+                        description:
+                          "entertainments stand for places to eat or entertain, and landscape is visiting places, and main is the place you are travelling for",
+                      },
                     },
                   },
                 },

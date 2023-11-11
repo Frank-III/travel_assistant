@@ -5,9 +5,9 @@ import Combo from "@/app/_components/combo";
 export default async function Page() {
   const session = await getPageSession();
   if (!session) redirect("/auth/login");
-  console.log(session)
+  console.log(session);
   return (
-    <div>
+    <div className="overflow-hidden">
       <Combo />
     </div>
   );

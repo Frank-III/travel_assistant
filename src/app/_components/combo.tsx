@@ -11,13 +11,19 @@ import MapComponent, { LocationMarker } from "@/app/_components/map-container";
 import { useCoords } from "@/hooks/useCoords";
 import ChatBox from "../_components/chat_ai";
 import { MarkerLocation } from "@/lib/types";
+import { Message } from "@/lib/types";
 
 export default function Combo() {
   const coords = useCoords();
   const [markers, setMarkers] = useState<MarkerLocation[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const addMessages = (newMessages: Message[]) => {
+    setMessages([...messages, ...newMessages]);
+  };
   const addmarkers = (newMarkers: MarkerLocation[]) => {
     setMarkers([...markers, ...newMarkers]);
   };
+
   useEffect(() => {
     if (coords) {
       console.log(coords);
@@ -26,15 +32,16 @@ export default function Combo() {
           lat: coords.latitude,
           lng: coords.longitude,
           description: "You are here",
-          center: true,
+          property: "main",
         },
       ]);
     }
   }, [coords]);
 
   return (
-    <div className="flex h-screen w-full flex-row items-center justify-center space-x-10 overflow-y-auto">
-      <ChatBox addMarker={addmarkers} />
+    <div className="flex h-screen max-h-screen over-flow-hidden w-full flex-row items-center justify-center space-x-10">
+      
+      <ChatBox addMarker={addmarkers} addMessages={addMessages} messages={messages}/>
       <MapComponent markers={markers} />
     </div>
   );

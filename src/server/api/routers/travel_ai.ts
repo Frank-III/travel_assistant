@@ -10,7 +10,7 @@ import { openai, assistant } from "@/server/openai_assistant";
 import { retrieveRunRes } from "@/lib/utils";
 import { TRPCError } from "@trpc/server";
 
-const USER_THREAD_MAP = new Map<string, string>(); 
+const USER_THREAD_MAP = new Map<string, string>();
 
 export const travelRouter = createTRPCRouter({
   // TODO: add user location here (or in the ctx)
@@ -47,18 +47,18 @@ export const travelRouter = createTRPCRouter({
         if (run.status === "failed") {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
-            message: "OpenAI Assistant Error"
+            message: "OpenAI Assistant Error",
           });
         }
         if (run.status === "requires_action") {
-          console.log("received action")
+          console.log("received action");
           return { type: "action", action: run };
         }
 
-        await new Promise((resolve) => setTimeout(resolve, 50000));
+        await new Promise((resolve) => setTimeout(resolve, 5000));
       }
       const messages = await openai.beta.threads.messages.list(thread_id);
-      console.log("received messages", messages)
+      console.log("received messages", messages);
       return { type: "message", messages: messages };
       // return retrieveRunRes(ctx.session?.userId, run.id);
     }),
@@ -82,7 +82,7 @@ export const travelRouter = createTRPCRouter({
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "No thread found",
-        })
+        });
       }
       const run = await openai.beta.threads.runs.submitToolOutputs(
         thread_id,
