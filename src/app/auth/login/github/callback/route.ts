@@ -29,16 +29,18 @@ export const GET = async (request: NextRequest) => {
       status: 400,
     });
   }
-  console.log(code);
+  // console.log(code);
   try {
     const { getExistingUser, githubUser, createUser } =
       await githubAuth.validateCallback(code);
     const getUser = async () => {
       const existingUser = await getExistingUser();
       if (existingUser) return existingUser;
+
       const user = await createUser({
         attributes: {
           username: githubUser.login,
+          avatar_url: githubUser.avatar_url,
         },
       });
       return user;

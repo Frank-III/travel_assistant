@@ -19,7 +19,7 @@ export const user = pgsqlTable("auth_user", {
   }).primaryKey(),
   // other user attributes,
   username: varchar("username", { length: 31 }).notNull(),
-  avatar: varchar("avatar", { length: 255 }).notNull(),
+  avatarUrl: varchar("avatar_url", { length: 255 }).notNull(),
 });
 
 export const key = pgsqlTable("user_key", {
