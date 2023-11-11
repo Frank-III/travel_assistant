@@ -26,14 +26,15 @@ export default async function Header() {
             <AvatarImage src={session?.user?.avatarUrl} />
             <AvatarFallback>{session.user.githubUsername[0]}</AvatarFallback>
           </Avatar> */}
-          <Image src={session?.user?.avatarUrl} width={25} height={10}/>
+          {session && <Image src={session?.user?.avatarUrl} width={25} height={10}/>}
           {session && session.user.githubUsername}
+          {!session && "No User !"}
         </div>
         {session && (
           <form
             action="/auth/logout"
             method="post"
-            className="rounded-full border  p-2 pb-0"
+            className="rounded-full border p-2 pb-0"
           >
             <button type="submit">
               <LogOut size={18} />
