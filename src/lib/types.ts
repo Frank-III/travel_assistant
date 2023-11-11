@@ -1,4 +1,3 @@
-
 export interface Message {
   message: string;
   sender: "user" | "assistant";
@@ -12,4 +11,9 @@ export type MarkerLocationWithCenter = {
   property: "main" | "entertainment" | "landscape";
 };
 
-export type MarkerLocation = Exclude<MarkerLocationWithCenter, "center">;
+export type MarkerLocation = Exclude<MarkerLocationWithCenter, "property">;
+
+export interface Content {
+  messages: Array<Message>;
+  locations: Array<MarkerLocationWithCenter>;
+}

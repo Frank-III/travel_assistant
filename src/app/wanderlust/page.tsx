@@ -7,7 +7,7 @@ export default async function Page() {
   if (!session) redirect("/auth/login");
   console.log(session);
   return (
-    <div className="overflow-hidden">
+    <div className="max-h-screen overflow-hidden">
       <Combo />
     </div>
   );

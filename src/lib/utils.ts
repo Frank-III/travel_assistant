@@ -1,8 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { openai } from "@/server/openai_assistant";
 import { twMerge } from "tailwind-merge";
-import { Message } from "@/lib/types";
-import { MarkerLocation } from "./types";
+import { Content } from "@/lib/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -42,14 +41,4 @@ export async function retrieveRunRes(message_id: string, run_id: string) {
   }
   const messages = await openai.beta.threads.messages.list(message_id);
   return { type: "message", messages: messages };
-}
-
-
-interface Content {
-  messages: Array<Message>;
-  locations: Array<MarkerLocation>;
-}
-
-export function exportToFile() {
-
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { MarkerLocation } from "@/lib/types";
+import { MarkerLocation, MarkerLocationWithCenter } from "@/lib/types";
 import { useState } from "react";
 import {
   MapContainer,
@@ -25,7 +25,7 @@ const blueIcon = new L.Icon({
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
-  shadowSize: [41, 41]
+  shadowSize: [41, 41],
 });
 
 const redIcon = new L.Icon({
@@ -34,7 +34,7 @@ const redIcon = new L.Icon({
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
-  shadowSize: [41, 41]
+  shadowSize: [41, 41],
 });
 
 const greenIcon = new L.Icon({
@@ -43,10 +43,14 @@ const greenIcon = new L.Icon({
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
-  shadowSize: [41, 41]
+  shadowSize: [41, 41],
 });
 
-export function LocationMarker({ marker }: { marker: MarkerLocation }) {
+export function LocationMarker({
+  marker,
+}: {
+  marker: MarkerLocationWithCenter;
+}) {
   const map = useMap();
   if (marker.property === "main") {
     map.flyTo({ lat: marker.lat, lng: marker.lng }, 13);
@@ -71,7 +75,7 @@ export default function MapComponent({
   markers,
 }: {
   center?: { lat: number; lng: number };
-  markers?: Array<MarkerLocation>;
+  markers?: Array<MarkerLocationWithCenter>;
 }) {
   return (
     <MapContainer

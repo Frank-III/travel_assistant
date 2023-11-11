@@ -1,5 +1,5 @@
 "use client";
-import { Message } from "@/lib/types";
+import { MarkerLocationWithCenter, Message } from "@/lib/types";
 import { useRef, useState, useEffect } from "react";
 import { match, P } from "ts-pattern";
 // import { FunctionTools, mark_locations } from "@/lib/utils";
@@ -10,9 +10,8 @@ import type {
   ThreadMessagesPage,
   MessageContentText,
 } from "openai/resources/beta/threads/messages";
-import { ChevronRight, Code, FileBarChart2 } from "lucide-react";
+import { ChevronRight, Code } from "lucide-react";
 import { MarkerLocation } from "@/lib/types";
-
 
 function ChatElement({ message }: { message: Message }) {
   return (
@@ -30,9 +29,9 @@ function ChatElement({ message }: { message: Message }) {
 export default function ChatBox({
   addMarker,
   addMessages,
-  messages
+  messages,
 }: {
-  addMarker: (marker: MarkerLocation[]) => void;
+  addMarker: (marker: MarkerLocationWithCenter[]) => void;
   addMessages: (messages: Message[]) => void;
   messages: Message[];
 }) {
@@ -69,14 +68,13 @@ export default function ChatBox({
                 console.log("add marker: ", params);
                 addMarker(
                   params.locations.map(
-                    (location: MarkerLocation) =>
-                      location,
-                      // {
-                      //   lat: location.lat,
-                      //   lng: location.lng,
-                      //   description: location.description,
-                      //   property: location.property,
-                      // }
+                    (location: MarkerLocationWithCenter) => location,
+                    // {
+                    //   lat: location.lat,
+                    //   lng: location.lng,
+                    //   description: location.description,
+                    //   property: location.property,
+                    // }
                   ),
                 );
                 break;
@@ -107,7 +105,7 @@ export default function ChatBox({
                   "text" in newMessage.content[0]
                     ? newMessage.content[0].text.value
                     : "",
-                sender: newMessage.role,
+                sender: "assistant",
                 meta: newMessage?.metadata,
               })),
           );
@@ -128,21 +126,23 @@ export default function ChatBox({
     meta: null,
   };
 
-  // scroll to input 
+  // scroll to input
   // useEffect(() => {
   //   inputRef.current?.scrollIntoView();
-  // }, [messages]); 
+  // }, [messages]);
 
   // when hit enter send message
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.key === "Enter") {
-        // askAssistant({ text: prompt });
-        addMessages([{
-          message: prompt,
-          sender: "user",
-          meta: null,
-        }]);
+        askAssistant({ text: prompt });
+        addMessages([
+          {
+            message: prompt,
+            sender: "user",
+            meta: null,
+          },
+        ]);
         setPrompt("");
       }
     };
@@ -181,7 +181,11 @@ export default function ChatBox({
     //     />
     //   </div>
     // </div>
-    <div className={`flex h-[650px] w-[650px] flex-col ${messages.length === 0 ? 'justify-center' : 'justify-end'} border-gray-300`}>
+    <div
+      className={`flex h-[650px] w-[650px] flex-col ${
+        messages.length === 0 ? "justify-center" : "justify-end"
+      } border-gray-300`}
+    >
       {/* Conditionally render messages container if there are messages */}
 
       {messages.length == 0 && <ChatElement message={fake_message} />}
@@ -194,8 +198,8 @@ export default function ChatBox({
       )}
 
       {/* Input and button */}
-      <div className="p-2 flex items-center space-x-5 border-t border-gray-300 text-[30px] text-gray-500 hover:text-gray-700">
-        <ChevronRight size={40} />
+      <div className="flex items-center space-x-5 border-t border-gray-300 py-2 text-[30px] text-gray-500 hover:text-gray-700">
+        <ChevronRight size={35} />
         <input
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
@@ -207,6 +211,5 @@ export default function ChatBox({
         />
       </div>
     </div>
-
   );
 }
